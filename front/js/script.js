@@ -1,14 +1,13 @@
 getProducts();
-addProducts([]);
 
-//Récupération de la liste des produits
+// Récupération de la liste des produits
 function getProducts() {
   fetch("http://localhost:3000/api/products")
   .then((res) => res.json())
   .then((data) => addProducts(data))
 }
 
-//Ajout de la liste des produits
+// Ajout de la liste des produits
 function addProducts(canapes) {
   for (let i=0; i < canapes.length; i++) {
   const canape = canapes[i];
