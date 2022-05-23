@@ -24,7 +24,7 @@ function addProducts(canapes) {
   // Création de l'élément "img"
   let productImg = document.createElement("img");
   productArticle.appendChild(productImg);
-  productImg.src = canapes[i].imageUrl;
+  productImg.src = canapes[i].imageUrl;  
   productImg.alt = canapes[i].altTxt;
 
   // Création de l'élément titre "h3"
