@@ -1,20 +1,29 @@
-let numberOfItems = localStorage.length
-addConsole(numberOfItems);
-addProducts(canapes);
+let button = document.querySelector("#order");
+let panier = []
+panier.forEach((items) => addProduct(items))
 
-function addConsole(numberOfItems) { 
-    for (let i=0; i < numberOfItems; i++){ 
-        let productCart = localStorage.getItem(localStorage.key(i));
-        let productCanape = JSON.parse(productCart);
-        let cart = []
-        cart.push(productCanape)
+let panierLocalStorage = JSON.parse(localStorage.getItem("produit"));
+let commande = JSON.parse(localStorage.getItem("commande"));
+
+let items = localStorage.produit;
+
+addConsole(items);
+addProduct();
+
+function addConsole(items) { 
+    for (let i=0; i < items; i++){ 
+        let productCanape = JSON.parse(localStorage.getItem(localStorage.key(i)));
+        panier.push(productCanape)
     }
 }
 
+// Ajout du produit à la page
+function addProduct(items) { 
 
-function addProducts(canapes) {
-    for (let i=0; i < canapes; i++) {
-    const canape = canapes[i];
-    console.log(i)
-    }
-}
+    let img = document.createElement("img");
+    img.src = items.imageUrl
+    img.alt = items.alt;
+    return img
+
+}  
+
