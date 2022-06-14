@@ -2,7 +2,6 @@ let button = document.querySelector("#order");
 
 let panier = []
 let panierLocalStorage = JSON.parse(localStorage.getItem("produit"));
-total();
 
 if (!panierLocalStorage) {
 
@@ -16,6 +15,7 @@ if (!panierLocalStorage) {
 
     for (let i=0; i < panierLocalStorage.length; i++){ 
         panier.push(panierLocalStorage);
+        let PLSlength = panierLocalStorage.length;
 
         // Création de l'élément "article"
         let cartItems = document.getElementById("cart__items");
@@ -27,8 +27,8 @@ if (!panierLocalStorage) {
         let cartImg = document.createElement("div");
         cartImg.classList.add("cart__item__img");
         let img = document.createElement("img");
-        imgsrc = panierLocalStorage[i].imgsrc;
-        imgalt = panierLocalStorage[i].imgalt;
+        img.src = panierLocalStorage[i].imgsrc;
+        img.alt = panierLocalStorage[i].imgalt;
         cartImg.appendChild(img);
         cartItem.appendChild(cartImg);
         
@@ -81,16 +81,10 @@ if (!panierLocalStorage) {
         deleteItem.textContent = "Supprimer";
         deleteItem.addEventListener("click", () => {
 
+        // Total 
+        let totalQty = document.getElementById('totalQuantity');
+        totalQty.textContent = panierLocalStorage[i].quantity;
+
     })
-
-    }
 } 
-
-function total() {
-    for (let i=0; i < panierLocalStorage; i++){
-    let cartPrice = document.querySelector("cart__price");
-    let qty = panierLocalStorage[i].quantity
-    let totalQty = document.querySelector("totalQuantity");
-    }
-
 }

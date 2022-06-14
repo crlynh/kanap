@@ -14,12 +14,13 @@ function getProduct() {
     .then((data) => addProduct(data))
 }
 
+let img = document.createElement("img");
+let imageCard = document.querySelector(".item__img");   
+
 // Ajout du produit à la page
 function addProduct(canape) { 
     
     // Création de l'élément "img"
-    let img = document.createElement("img");
-    let imageCard = document.querySelector(".item__img");   
     imageCard.appendChild(img);
     img.src = canape.imageUrl;
     img.alt = canape.altTxt;
@@ -78,10 +79,6 @@ function addToCart() {
         let colorChoice = document.querySelector("#colors").value;
                 // Au choix de la quantité
         let quantityChoice = document.querySelector("#quantity").value;
-    
-                // Affichage de l'image
-        let img = document.querySelector("img");
-        let imageCard = document.querySelector(".item__img");
     
                 // Affichage de l'id du produit 
         var str = window.location.href;
