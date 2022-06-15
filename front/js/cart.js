@@ -79,12 +79,30 @@ if (!panierLocalStorage) {
         deleteItem.classList.add("deleteItem");
         settingsDelete.appendChild(deleteItem);
         deleteItem.textContent = "Supprimer";
-        deleteItem.addEventListener("click", () => {
+        deleteItem.addEventListener("click", () => { })
 
-        // Total 
-        let totalQty = document.getElementById('totalQuantity');
-        totalQty.textContent = panierLocalStorage[i].quantity;
+        // Ajout de la quantité totale
+        let itemQty = document.getElementsByClassName("itemQuantity");
 
-    })
-} 
-}
+        totalQty = 0;
+        for (let i = 0; i < itemQty.length; ++i) {
+            totalQty += itemQty[i].valueAsNumber;
+        }
+
+        let productTotalQuantity = document.getElementById('totalQuantity');
+        productTotalQuantity.textContent = totalQty;
+
+
+        // Ajout du prix total
+        totalPrice = 0
+        for (let i = 0; i < itemQty.length; ++i) {
+            totalPrice += (itemQty[i].valueAsNumber * panierLocalStorage[i].price)
+        }
+
+        let productTotalPrice = document.getElementById('totalPrice');
+        productTotalPrice.textContent = totalPrice;
+
+
+
+    } 
+}  
