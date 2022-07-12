@@ -102,6 +102,7 @@ function addProduct(product) {
             localStorage.setItem("produit", JSON.stringify(panierLocalStorage));
             alert("Votre article a bien été supprimé");
             cartItem.remove();
+            location.reload();
             majTotals(product.quantity, 0, product.price);
         })  
 }
