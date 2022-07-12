@@ -3,12 +3,12 @@ var str = window.location.href;
 var url = new URL(str);
 var id = url.searchParams.get("id");
 
-getProduct();
+getProduct(id);
 addToCart();
 
 
 // Récupération du produit de la page
-function getProduct() {
+function getProduct(id) {
     fetch("http://localhost:3000/api/products/" + id)
     .then((res) => res.json())
     .then((data) => addProduct(data))
@@ -85,14 +85,14 @@ function addToCart() {
         var url = new URL(str);
         var id = url.searchParams.get("id");
     
-                // Les données affichées dans la LS 
+                // Les données affichées dans le LS 
         let produit = {
             color: colorChoice,
             id: id,
-            name: (document.getElementById("title").textContent),
-            price: Number(document.getElementById("price").textContent),
-            imgsrc: img.src,
-            imgalt: img.alt,
+            // name: (document.getElementById("title").textContent),
+            // price: Number(document.getElementById("price").textContent),
+            // imgsrc: img.src,
+            // imgalt: img.alt,
             quantity: Number(quantityChoice),
         };
 

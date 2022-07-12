@@ -3,36 +3,30 @@ let button = document.querySelector("#order");
 let panier = []
 let panierLocalStorage = JSON.parse(localStorage.getItem("produit"));
 
-if (!panierLocalStorage || panierLocalStorage.length === 0) {
+function getProduct(product) {
+    fetch("http://localhost:3000/api/products/" + product.id)
+    .then((res) => res.json())
+    .then((data) => addProduct({...product, ...data}))
+}
 
-    let titleCart = document.querySelector("h1");
-    let sectionCart = document.querySelector(".cart");
-
-    titleCart.innerHTML = "Votre panier est vide";
-    sectionCart.style.display = "none";
-
-} else {
-
-    for (let i=0; i < panierLocalStorage.length; i++){ 
-        panier.push(panierLocalStorage);
-        let PLSlength = panierLocalStorage.length;
-
+////// ************* Affichage des produits dans le panier ************* //////
+function addProduct(product) {
         // Création de l'élément "article"
         let cartItems = document.getElementById("cart__items");
         let cartItem = document.createElement("article");
         cartItem.classList.add("cart__item");
         cartItems.appendChild(cartItem);
-        
+
         // Création de l'élément "img"
         let cartImg = document.createElement("div");
         cartImg.classList.add("cart__item__img");
         let img = document.createElement("img");
-        img.src = panierLocalStorage[i].imgsrc;
-        img.alt = panierLocalStorage[i].imgalt;
+        img.src = product.imageUrl;
+        img.alt = product.altTxt;
         cartImg.appendChild(img);
         cartItem.appendChild(cartImg);
         
-        // Création des éléments "description" pour le nom, la couleur et le prix 
+        // Création des éléments "description" pour le nom, la couleur et le prix         
         let cartContent = document.createElement("div");
         cartContent.classList.add("cart__item__content");
         cartItem.appendChild(cartContent);
@@ -43,12 +37,12 @@ if (!panierLocalStorage || panierLocalStorage.length === 0) {
         let productName = document.createElement("h2");
         let productInfo = document.createElement("p");
         let productPrice = document.createElement("p")
-        productName.textContent = panierLocalStorage[i].name;
-        productInfo.textContent = panierLocalStorage[i].color;
-        productPrice.textContent = panierLocalStorage[i].price + "€";
+        productName.textContent = product.name;
+        productInfo.textContent = product.color;
+        productPrice.textContent = product.price + "€";
         cartContentDescription.appendChild(productName);
         cartContentDescription.appendChild(productInfo);
-        cartContentDescription.appendChild(productPrice)
+        cartContentDescription.appendChild(productPrice);
 
         // Création des éléments "settings" pour la quantité et la suppression
         let settings = document.createElement("div");
@@ -69,8 +63,27 @@ if (!panierLocalStorage || panierLocalStorage.length === 0) {
         qtyNumber.setAttribute("type", "number");
         qtyNumber.setAttribute("min", "1");
         qtyNumber.setAttribute("max", "100");
-        qtyNumber.setAttribute ("value", panierLocalStorage[i].quantity)
+        qtyNumber.setAttribute ("value", product.quantity)
 
+        // Au changement de la quantité 
+        qtyNumber.addEventListener("change", (e) => {
+            // On récupère le panier qui est dans le Local Storage
+            let panierLocalStorage = JSON.parse(localStorage.getItem("produit"));
+            // On récupère l'ancienne quantité 
+            let oldQty = Number(product.quantity)
+            // On modifie la quantité du local storage
+            panierLocalStorage = panierLocalStorage.map(el => {
+                if (el.id == product.id && el.color == product.color) {
+                    return {...el, quantity:Number(e.target.value)}
+                }
+                return el;
+            })
+            product.quantity = Number(e.target.value)
+            localStorage.setItem("produit", JSON.stringify(panierLocalStorage));
+            majTotals(oldQty, product.quantity, product.price)
+        })
+
+        // A la suppression d'un article
         let settingsDelete = document.createElement("div");
         settingsDelete.classList.add("cart__item__content__settings__delete");
         settings.appendChild(settingsDelete);
@@ -80,64 +93,65 @@ if (!panierLocalStorage || panierLocalStorage.length === 0) {
         settingsDelete.appendChild(deleteItem);
         deleteItem.textContent = "Supprimer";
 
-        // Suppression d'un article du panier 
+        // Au clic sur le bouton "Supprimer"
         deleteItem.addEventListener("click", () => { 
-            let itemToDelete = panierLocalStorage.filter(produit => produit.id !== panierLocalStorage[i].id && produit.color !== panierLocalStorage[i].color);
-            localStorage.setItem("produit", JSON.stringify(itemToDelete));
+            // On récupère le panier qui est dans le Local Storage
+            let panierLocalStorage = JSON.parse(localStorage.getItem("produit"));
+
+            panierLocalStorage = panierLocalStorage.filter(el => (el.id !== product.id || el.color !== product.color));
+            localStorage.setItem("produit", JSON.stringify(panierLocalStorage));
             alert("Votre article a bien été supprimé");
             cartItem.remove();
-            location.reload();
-            totals();
-        })        
-    } 
-}  
+            majTotals(product.quantity, 0, product.price);
+        })  
+}
 
-// Mise à jour de la quantité totale et du prix total 
-totals()
-function totals() {
-    let itemQty = document.getElementsByClassName("itemQuantity");
+// Modification du prix total et de la quantité totale 
+function majTotals(oldValue, newValue, price) {
+    let productTotalQuantity = document.getElementById("totalQuantity");
+    let tmpQte = productTotalQuantity.textContent;
+    productTotalQuantity.textContent = tmpQte - oldValue + newValue;
 
-    // Ajout de la quantité totale
-    totalQty = 0;
-    for (let i = 0; i < itemQty.length; ++i) {
-        totalQty += itemQty[i].valueAsNumber;
+    let productTotalPrice = document.getElementById("totalPrice");
+    let tmpPrix = productTotalPrice.textContent;
+    productTotalPrice.textContent = tmpPrix - (oldValue * price) + newValue * price;    
+}
+
+// Affichage du prix total et de la quantité totale
+async function totals(panier) {
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    for (let i=0; i < panier.length; i++){
+        const response = await fetch("http://localhost:3000/api/products/" + panier[i].id)
+        const p = await response.json()
+        addProduct({...panier[i], ...p});
+
+        totalQty += panier[i].quantity 
+        totalPrice += panier[i].quantity * p.price
     }
 
     let productTotalQuantity = document.getElementById("totalQuantity");
     productTotalQuantity.textContent = totalQty;
 
-    // Ajout du prix total
-    totalPrice = 0
-    for (let i = 0; i < itemQty.length; ++i) {
-        totalPrice += (itemQty[i].valueAsNumber * panierLocalStorage[i].price)
-    }
-
     let productTotalPrice = document.getElementById("totalPrice");
     productTotalPrice.textContent = totalPrice;
 }
 
-// Changement de la quantité  
-quantities()
-function quantities() {
-    let newQty = document.querySelectorAll(".itemQuantity");
+if (!panierLocalStorage || panierLocalStorage.length === 0) {
 
-    for (let i = 0; i < newQty.length; ++i) {
-        newQty[i].addEventListener("change", () => {
-            
-            let changeQty = panierLocalStorage[i].quantity;
-            let changeValue = newQty[i].valueAsNumber;
+    let titleCart = document.querySelector("h1");
+    let sectionCart = document.querySelector(".cart");
 
-            let itemToChange = panierLocalStorage.find((produit) => produit.changeValue !== changeQty);
+    titleCart.innerHTML = "Votre panier est vide";
+    sectionCart.style.display = "none";
 
-            panierLocalStorage[i].quantity = changeValue;
+} else {
 
-            localStorage.setItem("produit", JSON.stringify(panierLocalStorage));
-            totals();
-        })
-    }
-}
+    totals(panierLocalStorage)
+}  
 
-// Formulaire
+////// ************* Mise en place du formulaire ************* //////
 let form = document.querySelector(".cart__order__form")
 let inputFirstName = document.querySelector("#firstName");
 let inputLastName = document.querySelector("#lastName");
@@ -146,83 +160,97 @@ let inputCity = document.querySelector("#city");
 let inputEmail = document.querySelector("#email")
 let submit = document.querySelector("#order")
 
+// REGEX
+let regularRegExp = new RegExp("^[a-zA-Z ,.'-]+$");
+let addressRegExp = new RegExp("^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+");
+let emailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
+
+// FIRST NAME
+function valueFirstName() {
+    let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+
+    if (regularRegExp.test(inputFirstName.value)) {
+        firstNameErrorMsg.innerHTML = '';
+        return true
+    } else {
+        firstNameErrorMsg.innerHTML = 'Veuillez renseigner votre prénom.';
+        return false
+    }
+}
+
+// LAST NAME
+function valueLastName() {
+    let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+
+    if (regularRegExp.test(inputLastName.value)) {
+        lastNameErrorMsg.innerHTML = '';
+        return true
+    } else {
+        lastNameErrorMsg.innerHTML = 'Veuillez renseigner votre nom.';
+        return false
+    }
+}
+
+
+// ADRESSE
+function valueAddress() {
+    let addressErrorMsg = document.getElementById("addressErrorMsg");
+
+    if (addressRegExp.test(inputAddress.value)) {
+        addressErrorMsg.innerHTML = '';
+        return true
+    } else {
+        addressErrorMsg.innerHTML = 'Veuillez renseigner une adresse valide.';
+        return false
+    }
+}
+
+// VILLE
+function valueCity() {
+    let cityErrorMsg = document.getElementById("cityErrorMsg");
+
+    if (regularRegExp.test(inputCity.value)) {
+        cityErrorMsg.innerHTML = '';
+        return true
+    } else {
+        cityErrorMsg.innerHTML = 'Veuillez renseigner une ville.';
+        return false
+    }
+}
+
+
+// EMAIL
+function valueEmail() {
+    let emailErrorMsg = document.getElementById("emailErrorMsg");
+
+    if (emailRegExp.test(inputEmail.value)) {
+        emailErrorMsg.innerHTML = '';
+        return true
+    } else {
+        emailErrorMsg.innerHTML = 'Veuillez renseigner votre email.';
+        return false
+    }
+}
+
+// Inscription dans le formulaire 
 getForm()
 function getForm() { 
-    let regularRegExp = new RegExp("^[a-zA-Z ,.'-]+$");
-    let addressRegExp = new RegExp("^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+");
-    let emailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
-
-
-    // FIRST NAME
-    function valueFirstName() {
-        let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
-
-        if (regularRegExp.test(inputFirstName.value)) {
-            firstNameErrorMsg.innerHTML = '';
-        } else {
-            firstNameErrorMsg.innerHTML = 'Veuillez renseigner votre prénom.';
-        }
-    }
 
     form.firstName.addEventListener('change', () => {
         valueFirstName(this);
     })
 
-    // LAST NAME
-    function valueLastName() {
-        let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
-
-        if (regularRegExp.test(inputLastName.value)) {
-            lastNameErrorMsg.innerHTML = '';
-        } else {
-            lastNameErrorMsg.innerHTML = 'Veuillez renseigner votre nom.';
-        }
-    }
-
     form.lastName.addEventListener('change', () => {
         valueLastName(this);
     })
-
-    // ADRESSE
-    function valueAddress() {
-        let addressErrorMsg = document.getElementById("addressErrorMsg");
-
-        if (addressRegExp.test(inputAddress.value)) {
-            addressErrorMsg.innerHTML = '';
-        } else {
-            addressErrorMsg.innerHTML = 'Veuillez renseigner une adresse valide.';
-        }
-    }
 
     form.address.addEventListener('change', () => {
         valueAddress(this);
     })
 
-    // VILLE
-    function valueCity() {
-        let cityErrorMsg = document.getElementById("cityErrorMsg");
-
-        if (regularRegExp.test(inputCity.value)) {
-            cityErrorMsg.innerHTML = '';
-        } else {
-            cityErrorMsg.innerHTML = 'Veuillez renseigner une ville.';
-        }
-    }
-
     form.city.addEventListener('change', () => {
         valueCity(this);
     })
-
-    // EMAIL
-    function valueEmail() {
-        let emailErrorMsg = document.getElementById("emailErrorMsg");
-
-        if (emailRegExp.test(inputEmail.value)) {
-            emailErrorMsg.innerHTML = '';
-        } else {
-            emailErrorMsg.innerHTML = 'Veuillez renseigner votre email.';
-        }
-    }
 
     form.email.addEventListener('change', () => {
         valueEmail(this);
@@ -245,7 +273,13 @@ function submitForm() {
             email : inputEmail.value
           }
 
-        if (!formValues.firstName || !formValues.lastName || !formValues.address || !formValues.city || !formValues.email) {
+        if (
+            !formValues.firstName || 
+            !valueFirstName() || 
+            !formValues.lastName || 
+            !formValues.address || 
+            !formValues.city || 
+            !formValues.email) {
             alert("Merci de renseigner toutes les informations")
             return
         } else {
@@ -271,7 +305,6 @@ function submitForm() {
                 .then((data) => {
                     window.location.href = './confirmation.html?id='+ data.orderId;
                 })
-                .catch((err) => console.error(err))
-    }
+        }
     })
 }
