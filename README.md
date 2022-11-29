@@ -24,7 +24,7 @@ peut sélectionner une quantité, une couleur, et ajouter le produit à son pani
 
 Cloner ce repository 
    ```sh
-   git clone https://github.com/crlynh/kanap1.git
+   git clone https://github.com/crlynh/kanap.git
    ```
    
 ### Backend 
