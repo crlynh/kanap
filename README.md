@@ -1,15 +1,45 @@
-# Kanap #
+# PROJET 5 - KANAP
 
-This is the front end and back end server for Project 5 of the Web Developer path.
+## Objectif du projet : Construire un site e-commerce en JavaScript
 
-### Back end Prerequisites ###
+Kanap, une marque de canapés qui vend ses produits depuis sa boutique exclusivement, souhaiterait avoir une plateforme de e-commerce en plus de sa boutique physique pour vendre ses produits sur Internet.
 
-You will need to have Node and `npm` installed locally on your machine.
+## Spécifications techniques 
 
-### Back end Installation ###
+4 pages ont été mises en place : page d’accueil, page Produit, page Panier et la page Confirmation. Sur l’ensemble des pages, toutes les parties statiques sont en place, elles sont donc prêtes à recevoir le contenu dynamique.
 
-Clone this repo. From the "back" folder of the project, run `npm install`. You 
-can then run the server with `node server`. 
-The server should run on `localhost` with default port `3000`. If the
-server runs on another port for any reason, this is printed to the
-console when the server starts, e.g. `Listening on port 3001`.
+* Une page d’accueil montrant (de manière dynamique) tous les articles disponibles à la vente.
+* Une page “produit” qui affiche (de manière dynamique) les détails du produit sur lequel l'utilisateur a cliqué depuis la page d’accueil. Depuis cette page, l’utilisateur
+peut sélectionner une quantité, une couleur, et ajouter le produit à son panier.
+* Une page “panier” qui contient un résumé des produits dans le panier, le prix total et la possibilité de modifier la quantité d’un produit sélectionné ou bien de supprimer celui-ci et un formulaire permettant de passer une commande. Les données du formulaire doivent être correctes et bien formatées avant d'être renvoyées au back-end. Par exemple, pas de chiffre dans un champ prénom.
+* Une page “confirmation” de commande, remerciant l'utilisateur pour sa commande, et indiquant l'identifiant de commande envoyé par l’API.
+
+## Technologies utilisées 
+* HTML 5 
+* CSS 3 
+* JavaScript
+
+
+## Installation
+
+Cloner ce repository 
+   ```sh
+   git clone https://github.com/crlynh/kanap1.git
+   ```
+   
+### Backend 
+   
+* Installer npm
+   ```sh
+   npm install
+   ```
+
+* Lancer le serveur
+   ```sh
+   node server
+   ```
+   
+* Le message suivant doit s'afficher 
+   ```sh
+    Listening on port 3000
+   ```
